@@ -13,16 +13,24 @@ function App() {
   const fetchData = async () => {
     try {
       const statsRes = await fetch('http://127.0.0.1:8000/api/v1/stats');
+      if (!statsRes.ok) return;
+
       const docsRes = await fetch('http://127.0.0.1:8000/api/v1/documents');
       const confRes = await fetch('http://127.0.0.1:8000/api/v1/conflicts');
       const changesRes = await fetch('http://127.0.0.1:8000/api/v1/changes');
 
-      setStats(await statsRes.json());
-      setDocuments(await docsRes.json());
-      setConflicts(await confRes.json());
-      setChanges(await changesRes.json());
+      const st = await statsRes.json();
+      const docs = await docsRes.json();
+      const confs = await confRes.json();
+      const chg = await changesRes.json();
+
+      if (st && typeof st === 'object' && st.total_docs !== undefined) setStats(st);
+      if (Array.isArray(docs)) setDocuments(docs);
+      if (Array.isArray(confs)) setConflicts(confs);
+      if (Array.isArray(chg)) setChanges(chg);
+
     } catch (err) {
-      console.log("Backend not running yet", err);
+      console.log("Backend not running yet or CORS error", err);
     }
   };
 
@@ -101,16 +109,16 @@ function App() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
           <div className="bg-darkSecondary/30 border border-slate-700/50 p-4 rounded-xl flex justify-between items-center">
             <span className="text-slate-400 text-sm font-bold tracking-wider">TOTAL DOCS</span>
-            <span className="text-2xl font-mono text-white">{stats.total_docs}</span>
+            <span className="text-2xl font-mono text-white">{stats.total_docs || "0"}</span>
           </div>
           <div className={`bg-darkSecondary/30 border p-4 rounded-xl flex justify-between items-center ${stats.health_score < 100 ? 'border-amber-500/30' : 'border-slate-700/50'}`}>
             <span className="text-slate-400 text-sm font-bold tracking-wider">HEALTH SCORE</span>
-            <span className={`text-2xl font-mono ${stats.health_score < 100 ? 'text-amber-400' : 'text-emerald-400'}`}>{stats.health_score}%</span>
+            <span className={`text-2xl font-mono ${stats.health_score < 100 ? 'text-amber-400' : 'text-emerald-400'}`}>{stats.health_score || "100"}%</span>
           </div>
           <div className="bg-darkSecondary/30 border border-slate-700/50 p-4 rounded-xl flex justify-between items-center">
             <span className="text-slate-400 text-sm font-bold tracking-wider">DOCS SYNCED</span>
             <div className="flex -space-x-2">
-              {documents.slice(0, 3).map((doc: any) => (
+              {(documents || []).slice(0, 3).map((doc: any) => (
                 <div key={doc.id} title={doc.filename} className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500 flex items-center justify-center text-blue-300">
                   <CheckCircle size={14} />
                 </div>
@@ -126,7 +134,7 @@ function App() {
           <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-l-4 border-l-rose-500">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-rose-400"><AlertTriangle size={20} /> 1. Mismatches Detected</h3>
             <div className="flex flex-col gap-3">
-              {conflicts.length === 0 ? (
+              {(!conflicts || conflicts.length === 0) ? (
                 <p className="text-slate-500 italic text-sm">Waiting for code tracking...</p>
               ) : conflicts.map((conf: any) => (
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} key={conf.id} className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl shadow-lg relative overflow-hidden">
@@ -140,7 +148,7 @@ function App() {
           <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-l-4 border-l-emerald-500">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-emerald-400"><FileText size={20} /> 2. Document Auto-Updates</h3>
             <div className="flex flex-col gap-3">
-              {changes.length === 0 ? (
+              {(!changes || changes.length === 0) ? (
                 <p className="text-slate-500 italic text-sm">System holds original state.</p>
               ) : changes.map((ch: any) => (
                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} key={ch.id} className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
@@ -155,7 +163,7 @@ function App() {
           <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-l-4 border-l-blue-500">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-400"><Database size={20} /> 3. Aligned Architecture</h3>
             <div className="flex flex-col gap-3">
-              {changes.length === 0 ? (
+              {(!changes || changes.length === 0) ? (
                 <p className="text-slate-500 italic text-sm">No alignment generated yet.</p>
               ) : changes.map((ch: any) => (
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} key={ch.id} className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
