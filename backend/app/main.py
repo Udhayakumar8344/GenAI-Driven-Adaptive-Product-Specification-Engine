@@ -4,6 +4,12 @@ from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
+import io
+try:
+    from pypdf import PdfReader
+    HAS_PYPDF = True
+except ImportError:
+    HAS_PYPDF = False
 
 # --- FULL AI DEPENDENCIES ---
 try:
@@ -161,10 +167,21 @@ async def upload_document(
     doc_type: str = Form("SPECIFICATION")
 ):
     content = await file.read()
-    try:
-        text_content = content.decode('utf-8', errors='ignore')
-    except:
-        text_content = "Raw binary or PDF extracted text"
+    text_content = ""
+    
+    if file.filename.lower().endswith('.pdf') and HAS_PYPDF:
+        try:
+            pdf_file = io.BytesIO(content)
+            reader = PdfReader(pdf_file)
+            for page in reader.pages:
+                text_content += page.extract_text() + "\n"
+        except Exception as e:
+            text_content = f"Error extracting PDF: {str(e)}"
+    else:
+        try:
+            text_content = content.decode('utf-8', errors='ignore')
+        except:
+            text_content = "Raw binary or unreadable text"
         
     background_tasks.add_task(process_with_ai, file.filename, text_content, doc_type)
     return {"message": f"Processing {doc_type} changes..."}
