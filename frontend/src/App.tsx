@@ -23,7 +23,6 @@ function App() {
       const statsRes = await fetch('http://127.0.0.1:8000/api/v1/stats');
       if (!statsRes.ok) return;
 
-      const docsRes = await fetch('http://127.0.0.1:8000/api/v1/documents');
       const confRes = await fetch('http://127.0.0.1:8000/api/v1/conflicts');
       const changesRes = await fetch('http://127.0.0.1:8000/api/v1/changes');
       
