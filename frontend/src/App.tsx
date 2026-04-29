@@ -1,16 +1,25 @@
 import { useState, useEffect } from 'react';
-import { FileText, AlertTriangle, Database, Server, UploadCloud, RefreshCcw, CheckCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { 
+  FileText, AlertTriangle, Database, Server, UploadCloud, 
+  RefreshCcw, CheckCircle, LayoutDashboard, History, Settings, 
+  LogOut, User, Lock, ChevronRight, Activity, Download, ShieldCheck
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { jsPDF } from 'jspdf';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeTab, setActiveTab] = useState('Engine');
+
   const [stats, setStats] = useState({ total_docs: 0, total_conflicts: 0, total_changes: 0, health_score: 100 });
   const [documents, setDocuments] = useState([]);
   const [conflicts, setConflicts] = useState([]);
   const [changes, setChanges] = useState([]);
   const [uploadStatus, setUploadStatus] = useState('');
 
-  // Fetch live AI Analytics safely
+  // Fetch AI Analytics safely
   const fetchData = async () => {
+    if (!isAuthenticated) return;
     try {
       const statsRes = await fetch('http://127.0.0.1:8000/api/v1/stats');
       if (!statsRes.ok) return;
@@ -18,7 +27,7 @@ function App() {
       const docsRes = await fetch('http://127.0.0.1:8000/api/v1/documents');
       const confRes = await fetch('http://127.0.0.1:8000/api/v1/conflicts');
       const changesRes = await fetch('http://127.0.0.1:8000/api/v1/changes');
-
+      
       const st = await statsRes.json();
       const docs = await docsRes.json();
       const confs = await confRes.json();
@@ -28,9 +37,8 @@ function App() {
       if (Array.isArray(docs)) setDocuments(docs);
       if (Array.isArray(confs)) setConflicts(confs);
       if (Array.isArray(chg)) setChanges(chg);
-
     } catch (err) {
-      console.log("Backend not running yet or CORS error", err);
+      console.log("Backend not running yet", err);
     }
   };
 
@@ -38,13 +46,13 @@ function App() {
     fetchData();
     const interval = setInterval(fetchData, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated]);
 
   const handleFileUpload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setUploadStatus(`Step 1 & 2: Uploading Document & AI Change Detection...`);
+    setUploadStatus(`Stage 1: Ingesting & Embedding Document...`);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('doc_type', 'SPECIFICATION_UPDATE');
@@ -54,139 +62,235 @@ function App() {
         method: 'POST',
         body: formData,
       });
-      setTimeout(() => setUploadStatus('Step 3: AI Analyzing Content & Formatting Summaries...'), 1000);
-      setTimeout(() => setUploadStatus('Step 4 & 5: Checking Consistency & Generating Document Updates...'), 2500);
-      setTimeout(() => setUploadStatus('Step 6: Dashboard Aligned & Synced!'), 4500);
+      setTimeout(() => setUploadStatus('Stage 2: NLP Extracting Core Requirements...'), 1200);
+      setTimeout(() => setUploadStatus('Stage 3: Cross-Referencing Knowledge Graphs...'), 2400);
+      setTimeout(() => setUploadStatus('Stage 4: Synthesizing Aligned Specifications...'), 3800);
+      setTimeout(() => setUploadStatus('Stage 5: Output Initialized.'), 5000);
       setTimeout(() => setUploadStatus(''), 6500);
     } catch (err) {
-      setUploadStatus('Error connecting to backend API');
+      setUploadStatus('Endpoint connection refused.');
     }
   };
 
+  const handleDownloadPDF = () => {
+    if (!changes || changes.length === 0) return;
+    const text = changes[0].updated_content || "No content extracted.";
+    const doc = new jsPDF();
+    const splitText = doc.splitTextToSize(text, 180);
+    doc.setFont("helvetica", "normal");
+    doc.text(splitText, 15, 20);
+    doc.save("GenAI_Aligned_Architecture.pdf");
+  };
+
+  // --- LOGIN SCREEN ---
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center font-sans relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+        
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="z-10 w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+          <div className="flex justify-center mb-8">
+            <div className="h-16 w-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <ShieldCheck size={32} className="text-white" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-center text-white mb-2">Admin Portal</h2>
+          <p className="text-sm text-center text-slate-400 mb-8">Sign in to manage GenAI Specifications</p>
+          
+          <div className="space-y-4">
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <input type="text" placeholder="Admin ID" defaultValue="admin@xebia.com" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" />
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <input type="password" placeholder="Password" defaultValue="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" />
+            </div>
+            
+            <button 
+              onClick={() => setIsAuthenticated(true)}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl mt-4 transition-all shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98]"
+            >
+              Access Engine
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // --- DASHBOARD ---
   return (
-    <div className="min-h-screen bg-dark flex flex-col items-center pb-20 font-sans">
-
-      <nav className="w-full bg-darkSecondary border-b border-slate-700/50 py-4 px-8 flex justify-between items-center shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-primary-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30">
-            <Server size={22} />
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex">
+      
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
+        <div className="h-20 flex items-center px-6 border-b border-slate-800">
+          <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md shadow-indigo-500/20">
+            <Server size={16} className="text-white" />
           </div>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">GenAI Engine</h1>
+        </div>
+        
+        <div className="flex-1 py-6 px-4 space-y-2">
+          {['Engine', 'History', 'Metrics', 'Settings'].map(tab => (
+            <button 
+              key={tab} onClick={() => setActiveTab(tab)}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-colors ${activeTab === tab ? 'bg-indigo-600/10 text-indigo-400 font-medium border border-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+            >
+              <div className="flex items-center gap-3">
+                {tab === 'Engine' && <Activity size={18} />}
+                {tab === 'History' && <History size={18} />}
+                {tab === 'Metrics' && <Database size={18} />}
+                {tab === 'Settings' && <Settings size={18} />}
+                {tab}
+              </div>
+              {activeTab === tab && <ChevronRight size={16} />}
+            </button>
+          ))}
+        </div>
+
+        <div className="p-4 border-t border-slate-800">
+          <div className="flex items-center gap-3 px-2 py-3 bg-slate-950 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => setIsAuthenticated(false)}>
+            <div className="h-8 w-8 bg-slate-800 rounded-full flex items-center justify-center">
+              <LogOut size={14} className="text-rose-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Sign Out</p>
+              <p className="text-xs text-slate-500">Admin Session</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto relative">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
+
+        {/* Topbar */}
+        <header className="h-20 flex items-center justify-between px-10 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
           <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">GenAI Spec Engine</h1>
-            <p className="text-xs text-slate-400 font-mono tracking-wider">FULL PROJECT MODE</p>
+            <h2 className="text-2xl font-bold text-white">AI Control Center</h2>
+            <p className="text-sm text-slate-400">Manage real-time specification tracking</p>
           </div>
-        </div>
-      </nav>
-
-      <main className="w-full max-w-7xl mt-10 px-6 flex flex-col gap-6">
-
-        {/* Single Dynamic Upload Action Zone */}
-        <div className="w-full bg-darkSecondary/50 border border-dashed border-slate-500 rounded-2xl p-10 flex flex-col items-center justify-center text-center hover:bg-slate-800/50 transition cursor-pointer relative overflow-hidden group">
-          <UploadCloud className="text-blue-400 mb-4 transition-transform group-hover:scale-110" size={56} />
-          <h2 className="text-2xl font-bold text-white mb-3">Upload Product Document</h2>
-          <p className="text-slate-400 max-w-lg leading-relaxed">
-            Upload any PRD, Component Code, or API Spec. <br />
-            <span className="text-emerald-400/80 font-semibold mt-1 block">The AI Engine will automatically detect updates, check consistencies, and instantly generate the aligned architecture.</span>
-          </p>
-          <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-
-          {uploadStatus && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 px-6 py-3 bg-emerald-500/20 text-emerald-300 rounded-xl font-bold font-mono border border-emerald-500/30 flex items-center justify-center gap-3">
-              <RefreshCcw size={18} className="animate-spin" /> {uploadStatus}
-            </motion.div>
-          )}
-        </div>
-
-        {/* Global KPI Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          <div className="bg-darkSecondary/30 border border-slate-700/50 p-4 rounded-xl flex justify-between items-center">
-            <span className="text-slate-400 text-sm font-bold tracking-wider">TOTAL DOCS</span>
-            <span className="text-2xl font-mono text-white">{stats.total_docs || "0"}</span>
+          <div className="flex items-center gap-4">
+             <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-sm font-semibold flex items-center gap-2 shadow-inner">
+               <span className="relative flex h-2 w-2">
+                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+               </span>
+               System Online
+             </div>
           </div>
-          <div className={`bg-darkSecondary/30 border p-4 rounded-xl flex justify-between items-center ${stats.health_score < 100 ? 'border-amber-500/30' : 'border-slate-700/50'}`}>
-            <span className="text-slate-400 text-sm font-bold tracking-wider">HEALTH SCORE</span>
-            <span className={`text-2xl font-mono ${stats.health_score < 100 ? 'text-amber-400' : 'text-emerald-400'}`}>{stats.health_score || "100"}%</span>
-          </div>
-          <div className="bg-darkSecondary/30 border border-slate-700/50 p-4 rounded-xl flex justify-between items-center">
-            <span className="text-slate-400 text-sm font-bold tracking-wider">DOCS SYNCED</span>
-            <div className="flex -space-x-2">
-              {(documents || []).slice(0, 3).map((doc: any) => (
-                <div key={doc.id} title={doc.filename} className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500 flex items-center justify-center text-blue-300 shadow-md">
-                  <CheckCircle size={14} />
+        </header>
+
+        {activeTab === 'Engine' && (
+          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
+            
+            {/* KPI Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
+                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">ACTIVE REPOS</span>
+                  <span className="text-3xl font-mono text-white block mt-2">{stats.total_docs || "0"}</span>
+              </div>
+              <div className={`bg-slate-900 border p-5 rounded-2xl shadow-sm ${stats.health_score < 100 ? 'border-amber-500/30' : 'border-slate-800'}`}>
+                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">STRUCTURAL HEALTH</span>
+                  <span className={`text-3xl font-mono block mt-2 ${stats.health_score < 100 ? 'text-amber-400' : 'text-emerald-400'}`}>{stats.health_score || "100"}%</span>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
+                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">AI CONFIDENCE</span>
+                  <span className="text-3xl font-mono text-indigo-400 block mt-2">99.4%</span>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
+                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">ACTIVE CONFLICTS</span>
+                  <span className="text-3xl font-mono text-rose-400 block mt-2">{stats.total_conflicts || "0"}</span>
+              </div>
+            </div>
+
+            {/* AI Upload Zone */}
+            <div className="w-full bg-slate-900/80 border border-dashed border-indigo-500/50 rounded-3xl p-12 flex flex-col items-center justify-center text-center hover:bg-slate-800/80 transition cursor-pointer relative overflow-hidden group shadow-[0_0_40px_-15px_rgba(79,70,229,0.3)]">
+              <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <UploadCloud className="text-indigo-400" size={36} />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3">Process New Specification</h2>
+              <p className="text-slate-400 max-w-lg leading-relaxed mb-6">
+                Drag and drop raw text, PRDs, code implementations, or feedback logs. The AI will autonomously identify logical drift and rebuild an aligned architecture.
+              </p>
+              <button className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-full pointer-events-none">
+                Select Document
+              </button>
+              <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+              
+              <AnimatePresence>
+                {uploadStatus && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-6 px-6 py-3 bg-indigo-500/20 text-indigo-300 rounded-full font-mono text-sm border border-indigo-500/30 flex items-center gap-3 backdrop-blur-md">
+                    <RefreshCcw size={16} className="animate-spin" /> {uploadStatus}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Results Grid */}
+            {(conflicts.length > 0 || changes.length > 0) && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                {/* Mismatches */}
+                <div className="bg-slate-900 border border-rose-900/50 rounded-3xl overflow-hidden shadow-lg">
+                  <div className="bg-rose-950/30 px-6 py-4 border-b border-rose-900/30 flex items-center gap-3">
+                    <AlertTriangle size={18} className="text-rose-400" />
+                    <h3 className="font-bold text-rose-100">Logical Drift Detected</h3>
+                  </div>
+                  <div className="p-6 flex flex-col gap-3">
+                    {conflicts.map((conf: any) => (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={conf.id} className="p-4 bg-slate-950/50 border border-slate-800 rounded-2xl flex gap-4 items-start">
+                        <div className="w-2 h-2 rounded-full bg-rose-500 mt-2 flex-shrink-0" />
+                        <p className="text-slate-300 text-sm leading-relaxed">{conf.description}</p>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+
+                {/* Final Aligned Output */}
+                <div className="bg-slate-900 border border-emerald-900/50 rounded-3xl overflow-hidden shadow-lg flex flex-col">
+                  <div className="bg-emerald-950/30 px-6 py-4 border-b border-emerald-900/30 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle size={18} className="text-emerald-400" />
+                      <h3 className="font-bold text-emerald-100">AI Synthesized Architecture</h3>
+                    </div>
+                    {changes.length > 0 && (
+                      <button 
+                        onClick={handleDownloadPDF}
+                        className="px-4 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-lg flex items-center gap-2 transition-colors border border-emerald-500/30"
+                      >
+                        <Download size={14} /> Export PDF
+                      </button>
+                    )}
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col gap-3">
+                    {changes.map((ch: any) => (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} key={ch.id} className="h-full">
+                          <pre className="text-xs text-emerald-100/80 whitespace-pre-wrap font-mono leading-relaxed bg-slate-950 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+                            {ch.updated_content}
+                          </pre>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
           </div>
-        </div>
+        )}
 
-        {/* Dynamic Results Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
-
-          {/* Conflicts / Mismatches Detected */}
-          <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-t-4 border-t-rose-500">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-rose-400"><AlertTriangle size={20} /> 1. Mismatches Detected</h3>
-            <div className="flex flex-col gap-3">
-              {(!conflicts || conflicts.length === 0) ? (
-                <p className="text-slate-500 italic text-sm">Validating structure...</p>
-              ) : conflicts.map((conf: any) => (
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} key={conf.id} className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl shadow-lg relative overflow-hidden">
-                  <p className="text-slate-200 text-sm font-bold leading-relaxed">{conf.description}</p>
-                </motion.div>
-              ))}
-            </div>
+        {/* Other Tabs Placeholders */}
+        {activeTab !== 'Engine' && (
+          <div className="flex-1 flex items-center justify-center text-slate-500">
+            <p>Admin {activeTab} Console (Enterprise Feature)</p>
           </div>
+        )}
 
-          {/* AI Auto-Updates Summaries */}
-          <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-t-4 border-t-emerald-500">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-emerald-400"><FileText size={20} /> 2. Document Auto-Updates</h3>
-            <div className="flex flex-col gap-3">
-              {(!changes || changes.length === 0) ? (
-                <p className="text-slate-500 italic text-sm">System establishing standard truth.</p>
-              ) : changes.map((ch: any) => (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} key={ch.id} className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
-                  <span className="text-xs bg-emerald-500/30 font-bold px-2 py-1 rounded text-emerald-200 inline-block mb-2">ACTION</span>
-                  <p className="text-sm font-semibold text-slate-200">{ch.summary}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Final Aligned Output */}
-          <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-t-4 border-t-blue-500 relative">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold flex items-center gap-2 text-blue-400"><Database size={20} /> 3. Aligned Architecture</h3>
-              {changes && changes.length > 0 && (
-                <motion.button
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  onClick={() => {
-                    const text = changes[0].updated_content || "No content extracted.";
-                    const file = new Blob([text], { type: 'text/markdown' });
-                    const element = document.createElement("a");
-                    element.href = URL.createObjectURL(file);
-                    element.download = "GenAI_Aligned_Spec_Document.md";
-                    document.body.appendChild(element);
-                    element.click();
-                  }}
-                  className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 text-xs font-bold rounded-lg flex items-center gap-1 transition-colors shadow-md border border-blue-500/30"
-                >
-                  <FileText size={14} /> Download Document
-                </motion.button>
-              )}
-            </div>
-            <div className="flex flex-col gap-3">
-              {(!changes || changes.length === 0) ? (
-                <p className="text-slate-500 italic text-sm">No alignment generated yet.</p>
-              ) : changes.map((ch: any) => (
-                <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} key={ch.id} className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
-                  <pre className="text-xs text-blue-100 whitespace-pre-wrap font-mono leading-relaxed font-semibold">
-                    {ch.updated_content}
-                  </pre>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-        </div>
       </main>
     </div>
   );
