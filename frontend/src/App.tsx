@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, AlertTriangle, Activity, Settings, Database, Server, UploadCloud, CheckCircle, RefreshCcw, FileCode2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, AlertTriangle, Database, Server, UploadCloud, RefreshCcw, FileCode2, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function App() {
@@ -97,8 +97,30 @@ function App() {
           </motion.div>
         )}
 
+        {/* Global KPI Stats showing documents */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+          <div className="bg-darkSecondary/30 border border-slate-700/50 p-4 rounded-xl flex justify-between items-center">
+            <span className="text-slate-400 text-sm font-bold tracking-wider">TOTAL DOCS</span>
+            <span className="text-2xl font-mono text-white">{stats.total_docs}</span>
+          </div>
+          <div className={`bg-darkSecondary/30 border p-4 rounded-xl flex justify-between items-center ${stats.health_score < 100 ? 'border-amber-500/30' : 'border-slate-700/50'}`}>
+            <span className="text-slate-400 text-sm font-bold tracking-wider">HEALTH SCORE</span>
+            <span className={`text-2xl font-mono ${stats.health_score < 100 ? 'text-amber-400' : 'text-emerald-400'}`}>{stats.health_score}%</span>
+          </div>
+          <div className="bg-darkSecondary/30 border border-slate-700/50 p-4 rounded-xl flex justify-between items-center">
+            <span className="text-slate-400 text-sm font-bold tracking-wider">DOCS SYNCED</span>
+            <div className="flex -space-x-2">
+              {documents.slice(0, 3).map((doc: any) => (
+                <div key={doc.id} title={doc.filename} className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500 flex items-center justify-center text-blue-300">
+                  <CheckCircle size={14} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Dynamic Results Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
 
           {/* Conflicts / Mismatches Detected */}
           <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-l-4 border-l-rose-500">
