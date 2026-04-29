@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
-  FileText, AlertTriangle, Database, Server, UploadCloud, 
-  RefreshCcw, CheckCircle, LayoutDashboard, History, Settings, 
+  AlertTriangle, Database, Server, UploadCloud, 
+  RefreshCcw, CheckCircle, History, Settings, 
   LogOut, User, Lock, ChevronRight, Activity, Download, ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,9 +12,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('Engine');
 
   const [stats, setStats] = useState({ total_docs: 0, total_conflicts: 0, total_changes: 0, health_score: 100 });
-  const [documents, setDocuments] = useState([]);
-  const [conflicts, setConflicts] = useState([]);
-  const [changes, setChanges] = useState([]);
+  const [conflicts, setConflicts] = useState<any[]>([]);
+  const [changes, setChanges] = useState<any[]>([]);
   const [uploadStatus, setUploadStatus] = useState('');
 
   // Fetch AI Analytics safely
@@ -29,12 +28,10 @@ function App() {
       const changesRes = await fetch('http://127.0.0.1:8000/api/v1/changes');
       
       const st = await statsRes.json();
-      const docs = await docsRes.json();
       const confs = await confRes.json();
       const chg = await changesRes.json();
 
       if (st && typeof st === 'object' && st.total_docs !== undefined) setStats(st);
-      if (Array.isArray(docs)) setDocuments(docs);
       if (Array.isArray(confs)) setConflicts(confs);
       if (Array.isArray(chg)) setChanges(chg);
     } catch (err) {
