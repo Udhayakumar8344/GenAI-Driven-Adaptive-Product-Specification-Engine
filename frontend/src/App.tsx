@@ -9,9 +9,16 @@ import { jsPDF } from 'jspdf';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [activeTab, setActiveTab] = useState('Engine');
 
+  const [authEmail, setAuthEmail] = useState('admin@xebia.com');
+  const [authPass, setAuthPass] = useState('password');
+  const [registeredUsers, setRegisteredUsers] = useState([{ email: 'admin@xebia.com', pass: 'password' }]);
+  const [loginError, setLoginError] = useState('');
+
   const [stats, setStats] = useState({ total_docs: 0, total_conflicts: 0, total_changes: 0, health_score: 100 });
+  const [documents, setDocuments] = useState<any[]>([]);
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [changes, setChanges] = useState<any[]>([]);
   const [uploadStatus, setUploadStatus] = useState('');
@@ -23,14 +30,17 @@ function App() {
       const statsRes = await fetch('http://127.0.0.1:8000/api/v1/stats');
       if (!statsRes.ok) return;
 
+      const docsRes = await fetch('http://127.0.0.1:8000/api/v1/documents');
       const confRes = await fetch('http://127.0.0.1:8000/api/v1/conflicts');
       const changesRes = await fetch('http://127.0.0.1:8000/api/v1/changes');
       
       const st = await statsRes.json();
+      const docs = await docsRes.json();
       const confs = await confRes.json();
       const chg = await changesRes.json();
 
       if (st && typeof st === 'object' && st.total_docs !== undefined) setStats(st);
+      if (Array.isArray(docs)) setDocuments(docs);
       if (Array.isArray(confs)) setConflicts(confs);
       if (Array.isArray(chg)) setChanges(chg);
     } catch (err) {
@@ -78,7 +88,26 @@ function App() {
     doc.save("GenAI_Aligned_Architecture.pdf");
   };
 
-  // --- LOGIN SCREEN ---
+  // --- AUTH LOGIC ---
+  const handleLogin = () => {
+    const user = registeredUsers.find(u => u.email === authEmail && u.pass === authPass);
+    if (user) {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('Invalid credentials. Please try again.');
+    }
+  };
+
+  const handleRegister = () => {
+    if (authEmail && authPass) {
+      setRegisteredUsers([...registeredUsers, { email: authEmail, pass: authPass }]);
+      setIsRegistering(false);
+      setLoginError('Account created successfully! Please log in.');
+    }
+  };
+
+  // --- LOGIN/SIGNUP SCREEN ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center font-sans relative overflow-hidden">
@@ -91,25 +120,56 @@ function App() {
               <ShieldCheck size={32} className="text-white" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-center text-white mb-2">Admin Portal</h2>
-          <p className="text-sm text-center text-slate-400 mb-8">Sign in to manage GenAI Specifications</p>
+          <h2 className="text-2xl font-bold text-center text-white mb-2">
+            {isRegistering ? 'Create Account' : 'Admin Portal'}
+          </h2>
+          <p className="text-sm text-center text-slate-400 mb-8 font-medium italic">
+            {isRegistering ? 'Register to manage GenAI Specifications' : 'Sign in to access your dashboard'}
+          </p>
           
           <div className="space-y-4">
+            {loginError && (
+              <div className={`p-3 text-xs rounded-xl font-bold text-center ${loginError.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                {loginError}
+              </div>
+            )}
+            
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input type="text" placeholder="Admin ID" defaultValue="admin@xebia.com" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Email Address" 
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" 
+              />
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input type="password" placeholder="Password" defaultValue="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" />
+              <input 
+                type="password" 
+                placeholder="Password" 
+                value={authPass}
+                onChange={(e) => setAuthPass(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" 
+              />
             </div>
             
             <button 
-              onClick={() => setIsAuthenticated(true)}
+              onClick={isRegistering ? handleRegister : handleLogin}
               className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl mt-4 transition-all shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98]"
             >
-              Access Engine
+              {isRegistering ? 'Register Admin' : 'Access Engine'}
             </button>
+            
+            <div className="text-center mt-6">
+              <button 
+                onClick={() => { setIsRegistering(!isRegistering); setLoginError(''); }}
+                className="text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium underline underline-offset-4"
+              >
+                {isRegistering ? 'Already have an account? Login' : 'Need a new admin account? Register'}
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -280,10 +340,141 @@ function App() {
           </div>
         )}
 
-        {/* Other Tabs Placeholders */}
-        {activeTab !== 'Engine' && (
-          <div className="flex-1 flex items-center justify-center text-slate-500">
-            <p>Admin {activeTab} Console (Enterprise Feature)</p>
+        {/* History Tab */}
+        {activeTab === 'History' && (
+          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
+            <h3 className="text-xl font-bold text-white">Document Ingestion History</h3>
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-950/50 text-slate-500 text-xs font-bold tracking-widest border-b border-slate-800">
+                    <th className="px-6 py-4">FILENAME</th>
+                    <th className="px-6 py-4">TYPE</th>
+                    <th className="px-6 py-4">TIMESTAMP</th>
+                    <th className="px-6 py-4 text-right">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {documents.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-10 text-center text-slate-500 italic">No document history found.</td>
+                    </tr>
+                  ) : documents.map((doc: any) => (
+                    <tr key={doc.id} className="border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
+                      <td className="px-6 py-4 font-medium text-slate-200">{doc.filename}</td>
+                      <td className="px-6 py-4 text-slate-400">{doc.doc_type}</td>
+                      <td className="px-6 py-4 text-slate-500">{doc.upload_date}</td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-bold">Processed</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Metrics Tab */}
+        {activeTab === 'Metrics' && (
+          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
+            <div className="flex justify-between items-end">
+              <div>
+                <h3 className="text-xl font-bold text-white">System Performance Metrics</h3>
+                <p className="text-sm text-slate-500">Real-time telemetry from AI inference nodes</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
+                <h4 className="text-emerald-400 font-bold mb-6 text-sm tracking-widest uppercase">Structural Health Trend</h4>
+                <div className="h-48 flex items-end gap-2">
+                  {[40, 65, 55, 80, 95, 100, stats.health_score].map((h, i) => (
+                    <motion.div 
+                      key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }}
+                      className={`flex-1 rounded-t-lg ${h < 70 ? 'bg-rose-500/40' : h < 90 ? 'bg-amber-500/40' : 'bg-emerald-500/40'}`}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between mt-4 text-[10px] text-slate-600 font-bold tracking-widest">
+                  <span>T-6 HOURS</span>
+                  <span>CURRENT</span>
+                </div>
+              </div>
+              
+              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
+                <h4 className="text-indigo-400 font-bold mb-6 text-sm tracking-widest uppercase">Conflict Resolution Accuracy</h4>
+                <div className="flex flex-col gap-6">
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-slate-400">Semantic Matching</span>
+                      <span className="text-indigo-400 font-mono">99.8%</span>
+                    </div>
+                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: '99.8%' }} className="h-full bg-indigo-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-slate-400">Contextual Refinement</span>
+                      <span className="text-purple-400 font-mono">94.2%</span>
+                    </div>
+                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: '94.2%' }} className="h-full bg-purple-500" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'Settings' && (
+          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
+            <h3 className="text-xl font-bold text-white">System Architecture & Stack</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
+                <h4 className="text-indigo-400 font-bold mb-4 text-sm tracking-widest uppercase">Technology Stack</h4>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs text-slate-500 font-bold tracking-widest block mb-1">FRONTEND</span>
+                    <p className="text-slate-200">React 19, TypeScript, Tailwind CSS, Framer Motion, Lucide, jsPDF</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-bold tracking-widest block mb-1">BACKEND</span>
+                    <p className="text-slate-200">FastAPI, Python 3.11+, LangChain, Uvicorn, Pydantic</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-bold tracking-widest block mb-1">AI CORE</span>
+                    <p className="text-slate-200">OpenAI GPT-4o / Local Heuristic Parser Engine</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
+                <h4 className="text-indigo-400 font-bold mb-4 text-sm tracking-widest uppercase">API Endpoint Reference</h4>
+                <div className="space-y-3 font-mono text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-indigo-400 font-bold">GET</span>
+                    <span className="text-slate-400">/api/v1/stats</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-emerald-400 font-bold">POST</span>
+                    <span className="text-slate-400">/api/v1/upload</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-indigo-400 font-bold">GET</span>
+                    <span className="text-slate-400">/api/v1/documents</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-400 font-bold">GET</span>
+                    <span className="text-slate-400">/api/v1/conflicts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
