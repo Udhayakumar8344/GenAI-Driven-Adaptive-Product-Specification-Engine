@@ -152,8 +152,27 @@ function App() {
           </div>
 
           {/* Final Aligned Output */}
-          <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-t-4 border-t-blue-500">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-400"><Database size={20} /> 3. Aligned Architecture</h3>
+          <div className="col-span-1 border border-slate-700/50 rounded-2xl p-6 bg-darkSecondary/50 border-t-4 border-t-blue-500 relative">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-blue-400"><Database size={20} /> 3. Aligned Architecture</h3>
+              {changes && changes.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  onClick={() => {
+                    const text = changes[0].updated_content || "No content extracted.";
+                    const file = new Blob([text], { type: 'text/markdown' });
+                    const element = document.createElement("a");
+                    element.href = URL.createObjectURL(file);
+                    element.download = "GenAI_Aligned_Spec_Document.md";
+                    document.body.appendChild(element);
+                    element.click();
+                  }}
+                  className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 text-xs font-bold rounded-lg flex items-center gap-1 transition-colors shadow-md border border-blue-500/30"
+                >
+                  <FileText size={14} /> Download Document
+                </motion.button>
+              )}
+            </div>
             <div className="flex flex-col gap-3">
               {(!changes || changes.length === 0) ? (
                 <p className="text-slate-500 italic text-sm">No alignment generated yet.</p>
