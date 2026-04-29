@@ -429,48 +429,66 @@ function App() {
           </div>
         )}
 
-        {/* Settings Tab */}
+        {/* Settings Tab - Admin Profile */}
         {activeTab === 'Settings' && (
           <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
-            <h3 className="text-xl font-bold text-white">System Architecture & Stack</h3>
+            <h3 className="text-xl font-bold text-white">Administrative Profile</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
-                <h4 className="text-indigo-400 font-bold mb-4 text-sm tracking-widest uppercase">Technology Stack</h4>
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-xs text-slate-500 font-bold tracking-widest block mb-1">FRONTEND</span>
-                    <p className="text-slate-200">React 19, TypeScript, Tailwind CSS, Framer Motion, Lucide, jsPDF</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="col-span-1 bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm flex flex-col items-center text-center">
+                <div className="h-24 w-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 ring-4 ring-slate-950">
+                  <User size={40} className="text-white" />
+                </div>
+                <h4 className="text-lg font-bold text-white">Xebia Administrator</h4>
+                <p className="text-sm text-indigo-400 font-medium">System Architect</p>
+                
+                <div className="mt-8 w-full space-y-3">
+                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center px-4">
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Status</span>
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-bold border border-emerald-500/20">Verified</span>
                   </div>
-                  <div>
-                    <span className="text-xs text-slate-500 font-bold tracking-widest block mb-1">BACKEND</span>
-                    <p className="text-slate-200">FastAPI, Python 3.11+, LangChain, Uvicorn, Pydantic</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-slate-500 font-bold tracking-widest block mb-1">AI CORE</span>
-                    <p className="text-slate-200">OpenAI GPT-4o / Local Heuristic Parser Engine</p>
+                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center px-4">
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Region</span>
+                    <span className="text-[10px] text-slate-300 font-bold">Global-HQ</span>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
-                <h4 className="text-indigo-400 font-bold mb-4 text-sm tracking-widest uppercase">API Endpoint Reference</h4>
-                <div className="space-y-3 font-mono text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="text-indigo-400 font-bold">GET</span>
-                    <span className="text-slate-400">/api/v1/stats</span>
+
+              <div className="col-span-1 md:col-span-2 space-y-8">
+                <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
+                  <h4 className="text-slate-400 font-bold mb-6 text-xs tracking-widest uppercase">Account Credentials</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-2">Login Identifier</label>
+                      <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-sm text-slate-300 font-mono">
+                        {authEmail}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1">Access Token</label>
+                      <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-sm text-slate-300 font-mono truncate">
+                        genai_auth_xebia_2026_secured
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400 font-bold">POST</span>
-                    <span className="text-slate-400">/api/v1/upload</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-indigo-400 font-bold">GET</span>
-                    <span className="text-slate-400">/api/v1/documents</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-400 font-bold">GET</span>
-                    <span className="text-slate-400">/api/v1/conflicts</span>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
+                  <h4 className="text-slate-400 font-bold mb-6 text-xs tracking-widest uppercase">System Permissions</h4>
+                  <div className="space-y-4">
+                    {[
+                      { l: 'Architecture Overwrite', v: true },
+                      { l: 'Document Ingestion', v: true },
+                      { l: 'Conflict Resolution', v: true },
+                      { l: 'User Management', v: false }
+                    ].map((p, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-sm text-slate-300">{p.l}</span>
+                        <div className={`w-10 h-5 rounded-full relative transition-colors ${p.v ? 'bg-indigo-600' : 'bg-slate-800'}`}>
+                          <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${p.v ? 'right-1' : 'left-1'}`} />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
