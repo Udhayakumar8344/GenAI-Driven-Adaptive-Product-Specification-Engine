@@ -102,6 +102,11 @@ def process_with_ai(filename: str, incoming_text: str, content_type: str):
                 "description": f"AI Engine: Code Implementation requires OTP logic in '{filename}', conflicting with Password login in Master Doc.",
                 "severity": "CRITICAL"
             })
+            
+            # --- DELAY FOR PRESENTATION --- 
+            # This causes the UI to flash the Red Alert First, wait, then gracefully generate the Aligned Update!
+            time.sleep(3.5)
+
             DB_UPDATES.append({
                 "id": str(uuid.uuid4()),
                 "trigger_doc_id": doc_id,
