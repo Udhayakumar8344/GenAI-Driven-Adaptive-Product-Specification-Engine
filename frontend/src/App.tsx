@@ -80,12 +80,44 @@ function App() {
 
   const handleDownloadPDF = () => {
     if (!changes || changes.length === 0) return;
-    const text = changes[0].updated_content || "No content extracted.";
+    
+    // Always pick the LATEST synthesized alignment
+    const latestChange = changes[changes.length - 1];
+    const text = latestChange.updated_content || "No content extracted.";
+    
     const doc = new jsPDF();
-    const splitText = doc.splitTextToSize(text, 180);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(79, 70, 229); // Indigo-600
+    doc.text("ALIGNED ARCHITECTURE SPEC", 15, 25);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 15, 35);
+    doc.text(`Source Sync: ${latestChange.summary || 'Unified Build'}`, 15, 42);
+    
+    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.line(15, 48, 195, 48);
+    
     doc.setFont("helvetica", "normal");
-    doc.text(splitText, 15, 20);
-    doc.save("GenAI_Aligned_Architecture.pdf");
+    doc.setFontSize(11);
+    doc.setTextColor(30, 41, 59); // Slate-800
+    
+    const splitText = doc.splitTextToSize(text, 180);
+    let cursorY = 60;
+    const pageHeight = doc.internal.pageSize.height;
+
+    splitText.forEach((line: string) => {
+      if (cursorY > pageHeight - 20) {
+        doc.addPage();
+        cursorY = 20;
+      }
+      doc.text(line, 15, cursorY);
+      cursorY += 7;
+    });
+
+    doc.save("GenAI_Aligned_Spec_Report.pdf");
   };
 
   // --- AUTH LOGIC ---
@@ -324,13 +356,13 @@ function App() {
                     )}
                   </div>
                   <div className="p-6 flex-1 flex flex-col gap-3">
-                    {changes.map((ch: any) => (
-                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} key={ch.id} className="h-full">
+                    {changes.length > 0 && (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} key={changes[changes.length - 1].id} className="h-full">
                           <pre className="text-xs text-emerald-100/80 whitespace-pre-wrap font-mono leading-relaxed bg-slate-950 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
-                            {ch.updated_content}
+                            {changes[changes.length - 1].updated_content}
                           </pre>
                       </motion.div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
