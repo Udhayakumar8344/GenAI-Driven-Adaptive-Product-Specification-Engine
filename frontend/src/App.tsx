@@ -68,8 +68,8 @@ function App() {
         method: 'POST',
         body: formData,
       });
-      setTimeout(() => setUploadStatus('Stage 2: NLP Extracting Core Requirements...'), 1200);
-      setTimeout(() => setUploadStatus('Stage 3: Cross-Referencing Knowledge Graphs...'), 2400);
+      setTimeout(() => setUploadStatus('Stage 2: AI Autonomous Classification...'), 1200);
+      setTimeout(() => setUploadStatus('Stage 3: Cross-Referencing Isolated Project Graphs...'), 2400);
       setTimeout(() => setUploadStatus('Stage 4: Synthesizing Aligned Specifications...'), 3800);
       setTimeout(() => setUploadStatus('Stage 5: Output Initialized.'), 5000);
       setTimeout(() => setUploadStatus(''), 6500);
@@ -144,62 +144,70 @@ function App() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center font-sans relative overflow-hidden">
         {/* Background glow effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#eef651]/10 rounded-full blur-[120px] pointer-events-none" />
         
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="z-10 w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-          <div className="flex justify-center mb-8">
-            <div className="h-16 w-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <ShieldCheck size={32} className="text-white" />
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="z-10 w-full max-w-sm bg-slate-900 border border-white/5 rounded-[40px] p-10 backdrop-blur-xl shadow-2xl relative">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+            <div className="h-20 w-20 bg-slate-900 border-4 border-slate-950 rounded-[24px] flex items-center justify-center shadow-2xl">
+              <ShieldCheck size={36} className="text-[#eef651]" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-center text-white mb-2">
-            {isRegistering ? 'Create Account' : 'Admin Portal'}
-          </h2>
-          <p className="text-sm text-center text-slate-400 mb-8 font-medium italic">
-            {isRegistering ? 'Register to manage GenAI Specifications' : 'Sign in to access your dashboard'}
-          </p>
           
-          <div className="space-y-4">
+          <div className="mt-6 mb-10 text-center">
+            <h2 className="text-3xl font-black text-white italic tracking-tighter">
+              {isRegistering ? 'JOIN ENGINE' : 'PORTAL ENTRY'}
+            </h2>
+            <div className="h-1.5 w-12 bg-[#eef651] mx-auto mt-2 rounded-full" />
+          </div>
+          
+          <div className="space-y-5">
             {loginError && (
-              <div className={`p-3 text-xs rounded-xl font-bold text-center ${loginError.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+              <div className={`p-4 text-xs rounded-2xl font-bold text-center border ${loginError.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
                 {loginError}
               </div>
             )}
             
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input 
-                type="text" 
-                placeholder="Email Address" 
-                value={authEmail}
-                onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" 
-              />
+            <div className="group">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4 mb-2 block">Identity</label>
+              <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#eef651] transition-colors" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="Email Address" 
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  className="w-full bg-slate-950/50 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-slate-200 outline-none focus:border-[#eef651]/50 transition-all placeholder:text-slate-700" 
+                />
+              </div>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input 
-                type="password" 
-                placeholder="Password" 
-                value={authPass}
-                onChange={(e) => setAuthPass(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-200 outline-none focus:border-indigo-500 transition-colors" 
-              />
+
+            <div className="group">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4 mb-2 block">Security Token</label>
+              <div className="relative">
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#eef651] transition-colors" size={18} />
+                <input 
+                  type="password" 
+                  placeholder="Password" 
+                  value={authPass}
+                  onChange={(e) => setAuthPass(e.target.value)}
+                  className="w-full bg-slate-950/50 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-slate-200 outline-none focus:border-[#eef651]/50 transition-all placeholder:text-slate-700" 
+                />
+              </div>
             </div>
             
             <button 
               onClick={isRegistering ? handleRegister : handleLogin}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl mt-4 transition-all shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98]"
+              className="w-full bg-[#eef651] hover:bg-[#d9df48] text-slate-950 font-black py-4 rounded-2xl mt-4 transition-all shadow-[0_10px_30px_-10px_rgba(238,246,81,0.5)] active:scale-95 text-sm uppercase tracking-widest"
             >
-              {isRegistering ? 'Register Admin' : 'Access Engine'}
+              {isRegistering ? 'Create Admin' : 'Unlocking System'}
             </button>
             
-            <div className="text-center mt-6">
+            <div className="text-center mt-8">
               <button 
                 onClick={() => { setIsRegistering(!isRegistering); setLoginError(''); }}
-                className="text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium underline underline-offset-4"
+                className="text-[10px] text-slate-500 hover:text-[#eef651] transition-colors font-black uppercase tracking-widest border-b border-transparent hover:border-[#eef651] pb-1"
               >
-                {isRegistering ? 'Already have an account? Login' : 'Need a new admin account? Register'}
+                {isRegistering ? 'Back to Login' : 'Register New Admin'}
               </button>
             </div>
           </div>
@@ -210,43 +218,49 @@ function App() {
 
   // --- DASHBOARD ---
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex font-sans selection:bg-[#eef651] selection:text-slate-950">
       
       {/* SIDEBAR */}
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
-        <div className="h-20 flex items-center px-6 border-b border-slate-800">
-          <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md shadow-indigo-500/20">
-            <Server size={16} className="text-white" />
+      <aside className="w-72 bg-slate-900 border-r border-white/5 flex flex-col relative z-20">
+        <div className="h-24 flex items-center px-8 border-b border-white/5">
+          <div className="h-10 w-10 bg-[#eef651] rounded-xl flex items-center justify-center mr-4 shadow-[0_0_20px_-5px_#eef651]">
+            <Server size={20} className="text-slate-950" />
           </div>
-          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">GenAI Engine</h1>
+          <div>
+            <h1 className="text-lg font-black tracking-tighter text-white">GEN-AI <span className="text-[#eef651]">ENGINE</span></h1>
+            <div className="flex items-center gap-1.5 mt-0.5">
+               <div className="h-1 w-1 rounded-full bg-emerald-500" />
+               <p className="text-[10px] font-black text-slate-500 tracking-[0.2em] uppercase">V2.0 ALPHA</p>
+            </div>
+          </div>
         </div>
         
-        <div className="flex-1 py-6 px-4 space-y-2">
+        <div className="flex-1 py-10 px-6 space-y-3">
           {['Engine', 'History', 'Metrics', 'Settings'].map(tab => (
             <button 
               key={tab} onClick={() => setActiveTab(tab)}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-colors ${activeTab === tab ? 'bg-indigo-600/10 text-indigo-400 font-medium border border-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}
+              className={`w-full flex items-center justify-between px-5 py-4 rounded-[20px] transition-all duration-300 group ${activeTab === tab ? 'bg-[#eef651] text-slate-950 font-black shadow-[0_10px_20px_-10px_rgba(238,246,81,0.3)]' : 'text-slate-500 hover:bg-white/5 hover:text-slate-200'}`}
             >
-              <div className="flex items-center gap-3">
-                {tab === 'Engine' && <Activity size={18} />}
-                {tab === 'History' && <History size={18} />}
-                {tab === 'Metrics' && <Database size={18} />}
-                {tab === 'Settings' && <Settings size={18} />}
-                {tab}
+              <div className="flex items-center gap-4">
+                {tab === 'Engine' && <Activity size={20} />}
+                {tab === 'History' && <History size={20} />}
+                {tab === 'Metrics' && <Database size={20} />}
+                {tab === 'Settings' && <Settings size={20} />}
+                <span className="text-[13px] uppercase tracking-widest">{tab}</span>
               </div>
-              {activeTab === tab && <ChevronRight size={16} />}
+              {activeTab === tab && <ChevronRight size={18} />}
             </button>
           ))}
         </div>
 
-        <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-2 py-3 bg-slate-950 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors" onClick={() => setIsAuthenticated(false)}>
-            <div className="h-8 w-8 bg-slate-800 rounded-full flex items-center justify-center">
-              <LogOut size={14} className="text-rose-400" />
+        <div className="p-6 border-t border-white/5">
+          <div className="flex items-center gap-4 px-4 py-4 bg-slate-950/50 rounded-[24px] cursor-pointer hover:bg-slate-800 transition-all border border-white/5" onClick={() => setIsAuthenticated(false)}>
+            <div className="h-10 w-10 bg-slate-900 rounded-full flex items-center justify-center border border-white/10 group">
+              <LogOut size={16} className="text-rose-500 group-hover:scale-110 transition-transform" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold">Sign Out</p>
-              <p className="text-xs text-slate-500">Admin Session</p>
+              <p className="text-xs font-black uppercase text-white tracking-wider">Terminate</p>
+              <p className="text-[10px] text-slate-600 font-bold">End Admin Session</p>
             </div>
           </div>
         </div>
@@ -257,63 +271,62 @@ function App() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Topbar */}
-        <header className="h-20 flex items-center justify-between px-10 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
+        <header className="h-24 flex items-center justify-between px-12 border-b border-white/5 bg-slate-900/40 backdrop-blur-3xl sticky top-0 z-10">
           <div>
-            <h2 className="text-2xl font-bold text-white">AI Control Center</h2>
-            <p className="text-sm text-slate-400">Manage real-time specification tracking</p>
+            <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase">Command Center</h2>
+            <p className="text-[10px] text-slate-500 font-black tracking-[0.3em] uppercase mt-1">Global AI Synchronization Node</p>
           </div>
-          <div className="flex items-center gap-4">
-             <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-sm font-semibold flex items-center gap-2 shadow-inner">
+          <div className="flex items-center gap-6">
+             <div className="px-5 py-2.5 bg-slate-950 border border-white/10 text-emerald-400 rounded-full text-xs font-black tracking-widest flex items-center gap-3 shadow-inner">
                <span className="relative flex h-2 w-2">
                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                </span>
-               System Online
+               NODE: ACTIVE
              </div>
           </div>
         </header>
 
         {activeTab === 'Engine' && (
-          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
+          <div className="p-12 max-w-7xl mx-auto w-full flex flex-col gap-10">
             
             {/* KPI Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
-                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">ACTIVE REPOS</span>
-                  <span className="text-3xl font-mono text-white block mt-2">{stats.total_docs || "0"}</span>
-              </div>
-              <div className={`bg-slate-900 border p-5 rounded-2xl shadow-sm ${stats.health_score < 100 ? 'border-amber-500/30' : 'border-slate-800'}`}>
-                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">STRUCTURAL HEALTH</span>
-                  <span className={`text-3xl font-mono block mt-2 ${stats.health_score < 100 ? 'text-amber-400' : 'text-emerald-400'}`}>{stats.health_score || "100"}%</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
-                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">AI CONFIDENCE</span>
-                  <span className="text-3xl font-mono text-indigo-400 block mt-2">99.4%</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
-                  <span className="text-slate-500 text-xs font-bold tracking-wider upper">ACTIVE CONFLICTS</span>
-                  <span className="text-3xl font-mono text-rose-400 block mt-2">{stats.total_conflicts || "0"}</span>
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { l: 'Archives', v: stats.total_docs || "0", c: 'text-white' },
+                { l: 'Health', v: `${stats.health_score || "100"}%`, c: stats.health_score < 100 ? 'text-amber-400' : 'text-[#eef651]' },
+                { l: 'Confidence', v: '99.4%', c: 'text-[#eef651]' },
+                { l: 'Drifts', v: stats.total_conflicts || "0", c: 'text-rose-500' }
+              ].map((kpi, i) => (
+                <div key={i} className="bg-slate-900 border border-white/5 p-6 rounded-[32px] shadow-sm relative group overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
+                     <Activity size={40} className="text-white/20" />
+                  </div>
+                  <span className="text-slate-600 text-[10px] font-black tracking-[0.2em] uppercase block">{kpi.l}</span>
+                  <span className={`text-4xl font-mono block mt-3 font-black tracking-tighter ${kpi.c}`}>{kpi.v}</span>
+                </div>
+              ))}
             </div>
 
-            {/* AI Upload Zone */}
-            <div className="w-full bg-slate-900/80 border border-dashed border-indigo-500/50 rounded-3xl p-12 flex flex-col items-center justify-center text-center hover:bg-slate-800/80 transition cursor-pointer relative overflow-hidden group shadow-[0_0_40px_-15px_rgba(79,70,229,0.3)]">
-              <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <UploadCloud className="text-indigo-400" size={36} />
+            {/* AI Upload Action Zone */}
+            <div className="w-full bg-slate-900/60 border-2 border-dashed border-[#eef651]/20 rounded-[48px] p-16 flex flex-col items-center justify-center text-center hover:bg-slate-900/90 hover:border-[#eef651]/40 transition-all cursor-pointer relative overflow-hidden group shadow-[0_30px_60px_-30px_rgba(238,246,81,0.2)]">
+              <div className="h-28 w-28 bg-[#eef651]/5 rounded-[40px] flex items-center justify-center mb-8 ring-1 ring-white/5 group-hover:scale-110 transition-all duration-500">
+                <UploadCloud className="text-[#eef651] drop-shadow-[0_0_10px_rgba(238,246,81,0.5)]" size={48} />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-3">Process New Specification</h2>
-              <p className="text-slate-400 max-w-lg leading-relaxed mb-6">
-                Drag and drop raw text, PRDs, code implementations, or feedback logs. The AI will autonomously identify logical drift and rebuild an aligned architecture.
+              <h2 className="text-3xl font-black text-white mb-4 tracking-tighter italic uppercase">Ingest Specification</h2>
+              <p className="text-slate-500 max-w-xl leading-relaxed mb-8 font-medium text-sm">
+                Feed raw PRDs or feedback logs into the neural engine. <br/> 
+                <span className="text-[#eef651]/80 font-black italic">The AI will reconstruct structural alignment in real-time.</span>
               </p>
-              <button className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-full pointer-events-none">
-                Select Document
+              <button className="px-10 py-4 bg-[#eef651] hover:bg-white text-slate-950 font-black rounded-2xl pointer-events-none transition-colors uppercase tracking-widest text-xs shadow-xl">
+                Select Payload
               </button>
               <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
               
               <AnimatePresence>
                 {uploadStatus && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-6 px-6 py-3 bg-indigo-500/20 text-indigo-300 rounded-full font-mono text-sm border border-indigo-500/30 flex items-center gap-3 backdrop-blur-md">
-                    <RefreshCcw size={16} className="animate-spin" /> {uploadStatus}
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="absolute bottom-10 px-8 py-4 bg-slate-950 border border-[#eef651]/30 text-[#eef651] rounded-3xl font-black text-xs tracking-widest flex items-center gap-4 shadow-2xl backdrop-blur-xl">
+                    <RefreshCcw size={18} className="animate-spin" /> {uploadStatus.toUpperCase()}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -321,44 +334,44 @@ function App() {
 
             {/* Results Grid */}
             {(conflicts.length > 0 || changes.length > 0) && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 
                 {/* Mismatches */}
-                <div className="bg-slate-900 border border-rose-900/50 rounded-3xl overflow-hidden shadow-lg">
-                  <div className="bg-rose-950/30 px-6 py-4 border-b border-rose-900/30 flex items-center gap-3">
-                    <AlertTriangle size={18} className="text-rose-400" />
-                    <h3 className="font-bold text-rose-100">Logical Drift Detected</h3>
+                <div className="bg-slate-900 border border-rose-900/20 rounded-[40px] overflow-hidden shadow-2xl relative">
+                  <div className="bg-rose-950/20 px-8 py-6 border-b border-rose-900/10 flex items-center gap-4">
+                    <AlertTriangle size={22} className="text-rose-500" />
+                    <h3 className="font-black text-rose-100 uppercase italic tracking-tighter text-lg">Logical Drift Isolated</h3>
                   </div>
-                  <div className="p-6 flex flex-col gap-3">
+                  <div className="p-8 flex flex-col gap-4">
                     {conflicts.map((conf: any) => (
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={conf.id} className="p-4 bg-slate-950/50 border border-slate-800 rounded-2xl flex gap-4 items-start">
-                        <div className="w-2 h-2 rounded-full bg-rose-500 mt-2 flex-shrink-0" />
-                        <p className="text-slate-300 text-sm leading-relaxed">{conf.description}</p>
+                      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} key={conf.id} className="p-5 bg-slate-950/80 border border-white/5 rounded-3xl flex gap-5 items-start group hover:border-rose-500/30 transition-all">
+                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1.5 flex-shrink-0 shadow-[0_0_10px_#f43f5e]" />
+                        <p className="text-slate-300 text-sm leading-relaxed font-medium">{conf.description}</p>
                       </motion.div>
                     ))}
                   </div>
                 </div>
 
                 {/* Final Aligned Output */}
-                <div className="bg-slate-900 border border-emerald-900/50 rounded-3xl overflow-hidden shadow-lg flex flex-col">
-                  <div className="bg-emerald-950/30 px-6 py-4 border-b border-emerald-900/30 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle size={18} className="text-emerald-400" />
-                      <h3 className="font-bold text-emerald-100">AI Synthesized Architecture</h3>
+                <div className="bg-slate-900 border border-[#eef651]/20 rounded-[40px] overflow-hidden shadow-2xl flex flex-col relative">
+                  <div className="bg-[#eef651]/5 px-8 py-6 border-b border-[#eef651]/10 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <CheckCircle size={22} className="text-[#eef651]" />
+                      <h3 className="font-black text-[#eef651] uppercase italic tracking-tighter text-lg">Synthesized Solution</h3>
                     </div>
                     {changes.length > 0 && (
                       <button 
                         onClick={handleDownloadPDF}
-                        className="px-4 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-lg flex items-center gap-2 transition-colors border border-emerald-500/30"
+                        className="px-6 py-2.5 bg-[#eef651] hover:bg-white text-slate-950 text-[10px] font-black rounded-xl flex items-center gap-2 transition-all uppercase tracking-widest shadow-lg active:scale-95"
                       >
-                        <Download size={14} /> Export PDF
+                        <Download size={14} /> Download PDF
                       </button>
                     )}
                   </div>
-                  <div className="p-6 flex-1 flex flex-col gap-3">
+                  <div className="p-8 flex-1 flex flex-col gap-4">
                     {changes.length > 0 && (
-                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} key={changes[changes.length - 1].id} className="h-full">
-                          <pre className="text-xs text-emerald-100/80 whitespace-pre-wrap font-mono leading-relaxed bg-slate-950 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+                      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={changes[changes.length - 1].id} className="h-full">
+                          <pre className="text-xs text-slate-200 whitespace-pre-wrap font-mono leading-relaxed bg-slate-950/80 p-8 rounded-[32px] border border-white/5 overflow-x-auto shadow-inner h-full min-h-[300px]">
                             {changes[changes.length - 1].updated_content}
                           </pre>
                       </motion.div>
@@ -368,36 +381,34 @@ function App() {
 
               </div>
             )}
-
           </div>
         )}
 
-        {/* History Tab */}
         {activeTab === 'History' && (
-          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
-            <h3 className="text-xl font-bold text-white">Document Ingestion History</h3>
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg">
+          <div className="p-12 max-w-7xl mx-auto w-full flex flex-col gap-10">
+            <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Ingestion Log</h3>
+            <div className="bg-slate-900 border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-950/50 text-slate-500 text-xs font-bold tracking-widest border-b border-slate-800">
-                    <th className="px-6 py-4">FILENAME</th>
-                    <th className="px-6 py-4">TYPE</th>
-                    <th className="px-6 py-4">TIMESTAMP</th>
-                    <th className="px-6 py-4 text-right">STATUS</th>
+                  <tr className="bg-slate-950/80 font-black text-[10px] text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
+                    <th className="px-8 py-6">Payload Name</th>
+                    <th className="px-8 py-6">Type</th>
+                    <th className="px-8 py-6">Timestamp</th>
+                    <th className="px-8 py-6 text-right">Status</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {documents.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-10 text-center text-slate-500 italic">No document history found.</td>
+                      <td colSpan={4} className="px-8 py-20 text-center text-slate-600 italic">No document history found.</td>
                     </tr>
                   ) : documents.map((doc: any) => (
-                    <tr key={doc.id} className="border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4 font-medium text-slate-200">{doc.filename}</td>
-                      <td className="px-6 py-4 text-slate-400">{doc.doc_type}</td>
-                      <td className="px-6 py-4 text-slate-500">{doc.upload_date}</td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-bold">Processed</span>
+                    <tr key={doc.id} className="border-b border-white/5 hover:bg-white/5 transition-all">
+                      <td className="px-8 py-6 font-bold text-slate-200">{doc.filename}</td>
+                      <td className="px-8 py-6 text-slate-400 font-mono text-xs">{doc.doc_type}</td>
+                      <td className="px-8 py-6 text-slate-500">{doc.upload_date}</td>
+                      <td className="px-8 py-6 text-right">
+                        <span className="px-4 py-1.5 bg-[#eef651]/10 text-[#eef651] border border-[#eef651]/20 rounded-full text-[10px] font-black uppercase tracking-widest">Processed</span>
                       </td>
                     </tr>
                   ))}
@@ -409,53 +420,32 @@ function App() {
 
         {/* Metrics Tab */}
         {activeTab === 'Metrics' && (
-          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
-            <div className="flex justify-between items-end">
-              <div>
-                <h3 className="text-xl font-bold text-white">System Performance Metrics</h3>
-                <p className="text-sm text-slate-500">Real-time telemetry from AI inference nodes</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
-                <h4 className="text-emerald-400 font-bold mb-6 text-sm tracking-widest uppercase">Structural Health Trend</h4>
-                <div className="h-48 flex items-end gap-2">
+          <div className="p-12 max-w-7xl mx-auto w-full flex flex-col gap-10">
+            <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Telemetry Stream</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="bg-slate-900 border border-white/5 p-10 rounded-[48px] shadow-2xl relative overflow-hidden">
+                <h4 className="text-slate-500 font-black text-[10px] tracking-widest uppercase mb-8 ml-2">Node Structural Health</h4>
+                <div className="h-48 flex items-end gap-3 mb-8">
                   {[40, 65, 55, 80, 95, 100, stats.health_score].map((h, i) => (
                     <motion.div 
                       key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }}
-                      className={`flex-1 rounded-t-lg ${h < 70 ? 'bg-rose-500/40' : h < 90 ? 'bg-amber-500/40' : 'bg-emerald-500/40'}`}
+                      className={`flex-1 rounded-t-2xl transition-all duration-500 ${h < 70 ? 'bg-rose-500/40' : h < 90 ? 'bg-amber-500/40' : 'bg-[#eef651]/40 hover:bg-[#eef651]'}`}
                     />
                   ))}
                 </div>
-                <div className="flex justify-between mt-4 text-[10px] text-slate-600 font-bold tracking-widest">
-                  <span>T-6 HOURS</span>
-                  <span>CURRENT</span>
+                <div className="flex justify-between text-[10px] text-slate-600 font-black tracking-widest border-t border-white/5 pt-6">
+                  <span>HISTORICAL AVG</span>
+                  <span className="text-[#eef651]">LIVE STREAM</span>
                 </div>
               </div>
-              
-              <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
-                <h4 className="text-indigo-400 font-bold mb-6 text-sm tracking-widest uppercase">Conflict Resolution Accuracy</h4>
-                <div className="flex flex-col gap-6">
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-slate-400">Semantic Matching</span>
-                      <span className="text-indigo-400 font-mono">99.8%</span>
+              <div className="bg-slate-900 border border-white/5 p-10 rounded-[48px] shadow-2xl flex flex-col justify-center items-center text-center">
+                 <div className="h-40 w-40 rounded-full border-[16px] border-slate-950 border-t-[#eef651] shadow-[0_0_50px_-15px_rgba(238,246,81,0.4)] animate-spin-slow mb-8 flex items-center justify-center">
+                    <div className="text-center">
+                       <span className="text-3xl font-black text-white block tracking-tighter italic">99.4%</span>
+                       <span className="text-[10px] text-slate-500 font-black tracking-widest uppercase">SYNC CONF</span>
                     </div>
-                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: '99.8%' }} className="h-full bg-indigo-500" />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-slate-400">Contextual Refinement</span>
-                      <span className="text-purple-400 font-mono">94.2%</span>
-                    </div>
-                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: '94.2%' }} className="h-full bg-purple-500" />
-                    </div>
-                  </div>
-                </div>
+                 </div>
+                 <p className="text-slate-400 text-sm max-w-[200px] font-medium leading-relaxed italic">Real-time AI probability score for document alignment accuracy.</p>
               </div>
             </div>
           </div>
@@ -463,61 +453,52 @@ function App() {
 
         {/* Settings Tab - Admin Profile */}
         {activeTab === 'Settings' && (
-          <div className="p-10 max-w-7xl mx-auto w-full flex flex-col gap-8">
-            <h3 className="text-xl font-bold text-white">Administrative Profile</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="col-span-1 bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm flex flex-col items-center text-center">
-                <div className="h-24 w-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 ring-4 ring-slate-950">
-                  <User size={40} className="text-white" />
+          <div className="p-12 max-w-7xl mx-auto w-full flex flex-col gap-10">
+            <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Administrative Hub</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              <div className="col-span-1 bg-slate-900 border border-white/5 p-10 rounded-[48px] shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
+                <div className="h-36 w-36 bg-[#eef651] rounded-full flex items-center justify-center mb-8 shadow-[0_20px_40px_-10px_rgba(238,246,81,0.4)] ring-8 ring-slate-950 group-hover:scale-105 transition-transform">
+                  <User size={60} className="text-slate-950" />
                 </div>
-                <h4 className="text-lg font-bold text-white">Xebia Administrator</h4>
-                <p className="text-sm text-indigo-400 font-medium">System Architect</p>
-                
-                <div className="mt-8 w-full space-y-3">
-                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center px-4">
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Status</span>
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-bold border border-emerald-500/20">Verified</span>
+                <h4 className="text-2xl font-black text-white uppercase italic tracking-tighter italic">XEBIA_ADMIN</h4>
+                <p className="text-xs text-[#eef651] font-black uppercase tracking-widest mt-2">Verified Architect</p>
+                <div className="mt-12 w-full space-y-4">
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-white/5 flex justify-between items-center px-6">
+                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Region</span>
+                    <span className="text-[10px] text-slate-300 font-black uppercase">Global-HQ</span>
                   </div>
-                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center px-4">
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Region</span>
-                    <span className="text-[10px] text-slate-300 font-bold">Global-HQ</span>
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-white/5 flex justify-between items-center px-6">
+                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Security</span>
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full font-black border border-emerald-500/20">Alpha</span>
                   </div>
                 </div>
               </div>
-
-              <div className="col-span-1 md:col-span-2 space-y-8">
-                <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
-                  <h4 className="text-slate-400 font-bold mb-6 text-xs tracking-widest uppercase">Account Credentials</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-2">Login Identifier</label>
-                      <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-sm text-slate-300 font-mono">
-                        {authEmail}
-                      </div>
+              <div className="col-span-1 md:col-span-2 space-y-10">
+                <div className="bg-slate-900 border border-white/5 p-10 rounded-[48px] shadow-2xl relative overflow-hidden">
+                  <h4 className="text-slate-500 font-black text-[10px] tracking-widest uppercase mb-8 ml-2">Node Authorized Identity</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] text-slate-600 font-black uppercase block ml-4 tracking-[0.2em]">Primary Identifier</label>
+                      <div className="p-5 bg-slate-950 rounded-[24px] border border-white/5 text-sm text-slate-300 font-mono italic shadow-inner">{authEmail}</div>
                     </div>
-                    <div>
-                      <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1">Access Token</label>
-                      <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-sm text-slate-300 font-mono truncate">
-                        genai_auth_xebia_2026_secured
-                      </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] text-slate-600 font-black uppercase block ml-4 tracking-[0.2em]">Session Token</label>
+                      <div className="p-5 bg-slate-950 rounded-[24px] border border-white/5 text-xs text-slate-400 font-mono truncate shadow-inner">genai_auth_xebia_2026_secured</div>
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-sm">
-                  <h4 className="text-slate-400 font-bold mb-6 text-xs tracking-widest uppercase">System Permissions</h4>
-                  <div className="space-y-4">
+                <div className="bg-slate-900 border border-white/5 p-10 rounded-[48px] shadow-2xl relative overflow-hidden">
+                  <h4 className="text-slate-500 font-black text-[10px] tracking-widest uppercase mb-8 ml-2">System Privilege Matrix</h4>
+                  <div className="space-y-5">
                     {[
-                      { l: 'Architecture Overwrite', v: true },
-                      { l: 'Document Ingestion', v: true },
-                      { l: 'Conflict Resolution', v: true },
-                      { l: 'User Management', v: false }
+                      { l: 'Full Neural Alignment', v: true },
+                      { l: 'Bypass Consistency Guard', v: true },
+                      { l: 'Cross-Node Deletion', v: false }
                     ].map((p, i) => (
-                      <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm text-slate-300">{p.l}</span>
-                        <div className={`w-10 h-5 rounded-full relative transition-colors ${p.v ? 'bg-indigo-600' : 'bg-slate-800'}`}>
-                          <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${p.v ? 'right-1' : 'left-1'}`} />
+                      <div key={i} className="flex items-center justify-between p-5 bg-slate-950/50 rounded-[24px] border border-white/5">
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-400">{p.l}</span>
+                        <div className={`w-12 h-6 rounded-full relative transition-all duration-500 ${p.v ? 'bg-[#eef651] shadow-[0_0_15px_-5px_#eef651]' : 'bg-slate-800'}`}>
+                          <div className={`absolute top-1 w-4 h-4 bg-slate-950 rounded-full transition-all duration-300 ${p.v ? 'right-1' : 'left-1'}`} />
                         </div>
                       </div>
                     ))}

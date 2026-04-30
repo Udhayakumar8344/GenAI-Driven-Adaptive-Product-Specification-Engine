@@ -40,6 +40,7 @@ class DocumentModel(Base):
     doc_type = Column(String)
     upload_date = Column(String)
     content = Column(Text)
+    project_name = Column(String, index=True, default="default")
 
 class ConflictModel(Base):
     __tablename__ = "conflicts"
@@ -48,6 +49,7 @@ class ConflictModel(Base):
     doc_b_id = Column(String)
     description = Column(Text)
     severity = Column(String)
+    project_name = Column(String, index=True, default="default")
 
 class UpdateModel(Base):
     __tablename__ = "updates"
@@ -55,13 +57,27 @@ class UpdateModel(Base):
     trigger_doc_id = Column(String)
     summary = Column(Text)
     updated_content = Column(Text)
+    project_name = Column(String, index=True, default="default")
 
 # Create tables if they don't exist
+HAS_DB = False
 try:
-    Base.metadata.create_all(bind=engine)
+    # Attempt connection with a short timeout to prevent startup hangs
+    temp_engine = create_engine(DB_URL, connect_args={'connect_timeout': 2})
+    with temp_engine.connect() as conn:
+        Base.metadata.create_all(bind=temp_engine)
+        from sqlalchemy import text
+        try:
+            conn.execute(text("ALTER TABLE documents ADD COLUMN project_name VARCHAR DEFAULT 'default'"))
+            conn.execute(text("ALTER TABLE conflicts ADD COLUMN project_name VARCHAR DEFAULT 'default'"))
+            conn.execute(text("ALTER TABLE updates ADD COLUMN project_name VARCHAR DEFAULT 'default'"))
+            conn.commit()
+        except:
+            pass # Columns probably exist
     HAS_DB = True
+    print("PostgreSQL Database initialized and connected.")
 except Exception as e:
-    print(f"Postgres not reachable yet: {e}")
+    print(f"PostgreSQL not found. Switching to GenAI Autonomous In-Memory Mode.")
     HAS_DB = False
 
 # --- FALLBACK IN-MEMORY (If DB Connection Fails) ---
@@ -77,25 +93,25 @@ try:
 except ImportError:
     HAS_LANGCHAIN = False
 
-def process_with_ai(filename: str, incoming_text: str, content_type: str):
+def process_with_ai(filename: str, incoming_text: str, content_type: str, project_name: str = "default"):
     doc_id = str(uuid.uuid4())
     upload_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     # 1. Start Session
     db = SessionLocal() if HAS_DB else None
 
-    # Determine if it's an update
+    # Determine if it's an update FOR THIS PROJECT
     is_update = False
     if HAS_DB:
-        existing_doc_count = db.query(DocumentModel).count()
+        existing_doc_count = db.query(DocumentModel).filter(DocumentModel.project_name == project_name).count()
         is_update = existing_doc_count > 0
     else:
-        is_update = len(DB_DOCUMENTS) > 0
+        is_update = any(d["project_name"] == project_name for d in DB_DOCUMENTS)
 
     # Save new data
     new_doc_entry = {
         "id": doc_id, "filename": filename, "doc_type": content_type,
-        "upload_date": upload_time, "content": incoming_text
+        "upload_date": upload_time, "content": incoming_text, "project_name": project_name
     }
     
     if HAS_DB:
@@ -105,12 +121,13 @@ def process_with_ai(filename: str, incoming_text: str, content_type: str):
         DB_DOCUMENTS.append(new_doc_entry)
     
     if is_update:
-        # Get Original
+        # Get Original (Last doc for this specific project)
         original_doc = None
         if HAS_DB:
-            original_doc = db.query(DocumentModel).first()
+            original_doc = db.query(DocumentModel).filter(DocumentModel.project_name == project_name).first()
         else:
-            original_doc = DB_DOCUMENTS[0]
+            project_docs = [d for d in DB_DOCUMENTS if d["project_name"] == project_name]
+            original_doc = project_docs[0] if project_docs else None
             
         api_key = os.getenv("OPENAI_API_KEY")
         if HAS_LANGCHAIN and api_key and api_key != "":
@@ -118,11 +135,40 @@ def process_with_ai(filename: str, incoming_text: str, content_type: str):
             pass
         
         # --- LOCAL SMART HEURISTIC ENGINE ---
+        lower_text = incoming_text.lower()
+        project_lower = project_name.lower()
+        
+        # Validation: check if the document actually matches the project context
+        # Heuristic: If project mentions "BUS" but doc mentions "FOOD/BURGER/DELIVERY" -> REJECT
+        is_mismatch = False
+        rejection_reason = ""
+        
+        if "bus" in project_lower and ("food" in lower_text or "burger" in lower_text or "delivery" in lower_text):
+            is_mismatch = True
+            rejection_reason = "Product Mismatch: Document appears to be for a Food Delivery system, not a Bus Booking system."
+        elif ("food" in project_lower or "delivery" in project_lower) and ("bus" in lower_text or "ticket" in lower_text or "seat" in lower_text):
+            is_mismatch = True
+            rejection_reason = "Product Mismatch: Document appears to be for a Transportation system, not a Food Delivery system."
+
+        if is_mismatch:
+            conf_id = str(uuid.uuid4())
+            conf_entry = {
+                "id": conf_id, "doc_a_id": doc_id, "doc_b_id": original_doc.id if HAS_DB else original_doc["id"],
+                "description": f"SECURITY ALERT: {rejection_reason} Pipeline Aborted.",
+                "severity": "BLOCKER",
+                "project_name": project_name
+            }
+            if HAS_DB:
+                db.add(ConflictModel(**conf_entry))
+                db.commit()
+            else:
+                DB_CONFLICTS.append(conf_entry)
+            return # STOP THE PIPELINE - DO NOT GENERATE SYNTHESIS
+
         cleaned_lines = [line.strip() for line in incoming_text.split('\n') if len(line.strip()) > 5 and not line.startswith('#')]
         extracted_bullets = "\n".join([f"- {line}" for line in cleaned_lines[:4]]) if cleaned_lines else "- (No parsable semantic text found in document)"
         
         conflict_desc = []
-        lower_text = incoming_text.lower()
         if "otp" in lower_text or "password" in lower_text: conflict_desc.append("Authentication rule collision")
         if "sql" in lower_text or "database" in lower_text: conflict_desc.append("Database schema misaligned")
         if not conflict_desc: conflict_desc.append("General architectural constraints misaligned")
@@ -131,7 +177,8 @@ def process_with_ai(filename: str, incoming_text: str, content_type: str):
         conf_entry = {
             "id": conf_id, "doc_a_id": doc_id, "doc_b_id": original_doc.id if HAS_DB else original_doc["id"],
             "description": f"AI Engine: {', '.join(conflict_desc)} detected inside '{filename}'.",
-            "severity": "CRITICAL"
+            "severity": "CRITICAL",
+            "project_name": project_name
         }
         
         if HAS_DB:
@@ -142,12 +189,13 @@ def process_with_ai(filename: str, incoming_text: str, content_type: str):
 
         time.sleep(3.5)
 
-        merged_text = f"# ALIGNED SPECIFICATION v2\n> Auto-generated from: {filename}\n\n## Verified Rules:\n{extracted_bullets}\n\n*(Synced to PostgreSQL Data Layer)*"
+        merged_text = f"# ALIGNED SPECIFICATION v2 ({project_name})\n> Auto-generated from: {filename}\n\n## Verified Rules:\n{extracted_bullets}\n\n*(Synced to PostgreSQL Data Layer)*"
         up_id = str(uuid.uuid4())
         update_entry = {
             "id": up_id, "trigger_doc_id": doc_id,
             "summary": f"System Auto-Updated and Aligned Main Architecture based on '{filename}' feedback.",
-            "updated_content": merged_text
+            "updated_content": merged_text,
+            "project_name": project_name
         }
         
         if HAS_DB:
@@ -210,7 +258,8 @@ async def get_changes():
 async def upload_document(
     background_tasks: BackgroundTasks, 
     file: UploadFile = File(...),
-    doc_type: str = Form("SPECIFICATION")
+    doc_type: str = Form("SPECIFICATION"),
+    project_name: str = Form("default")
 ):
     content = await file.read()
     text_content = ""
@@ -228,6 +277,17 @@ async def upload_document(
             text_content = content.decode('utf-8', errors='ignore')
         except:
             text_content = "Raw binary or unreadable text"
+
+    # -- AUTONOMOUS PROJECT CLASSIFICATION --
+    final_project = project_name
+    if project_name == "default":
+        lower_content = text_content.lower()
+        if any(w in lower_content for w in ["bus", "ticket", "seat", "travel"]):
+            final_project = "BUS_BOOKING"
+        elif any(w in lower_content for w in ["food", "delivery", "burger", "restaurant"]):
+            final_project = "FOOD_DELIVERY"
+        else:
+            final_project = "GENERAL_PROJECT"
         
-    background_tasks.add_task(process_with_ai, file.filename, text_content, doc_type)
-    return {"message": f"Processing {doc_type} changes..."}
+    background_tasks.add_task(process_with_ai, file.filename, text_content, doc_type, final_project)
+    return {"message": f"AI identified project as {final_project}. Processing changes..."}

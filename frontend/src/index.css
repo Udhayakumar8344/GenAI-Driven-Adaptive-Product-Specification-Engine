@@ -3,7 +3,18 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-dark text-slate-100 font-sans antialiased;
+  :root {
+    --primary: #eef651;
   }
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-[#eef651] selection:text-slate-950;
+  }
+}
+
+.glow-lime {
+  box-shadow: 0 0 20px -5px rgba(238, 246, 81, 0.3);
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-white to-[#eef651] bg-clip-text text-transparent;
 }

@@ -1,41 +1,48 @@
-# GenAI-Driven Adaptive Product Specification Engine
+# 🍋 GenAI-Driven Adaptive Product Specification Engine
+### *The Ultimate AI Orchestrator for Real-time Specification Synchronization*
 
-Welcome to the full project scaffold for the Xebia Hackathon 2026! 🚀
+**GenAI-Adaptive-Spec-Engine** is an enterprise-grade solution built for the Xebia Hackathon 2026. It solves the critical problem of **Logical Drift** between Product Requirements (PRDs), Developer Code, and Technical Documentation.
 
-## 🏗️ Project Architecture
+## 🚀 The Core Problem
+In traditional software development, documents are stored in silos (PRDs, Jira, API docs). When developers update code, documents often become outdated, leading to:
+- Team confusion & miscommunication
+- Incorrect feature implementations
+- Costly bugs and delivery delays
 
-This repository is built according to the High-Level Design (HLD) Document provided. It contains:
-- **`frontend/`**: Enterprise-ready React.js + Tailwind CSS UI scaffolding.
-- **`backend/`**: Python FastAPI backend skeleton pre-configured for LLM AI Orchestration.
-- **`docker-compose.yml`**: Local database infrastructure (PostgreSQL & Redis).
+## ✨ Key Features
+- **Neural Alignment Engine**: Uses heuristic-guided AI to cross-reference multiple documents and isolate architectural drifts instantly.
+- **Autonomous Project Isolation**: Intelligently detects project domains (e.g., Bus Booking vs. Food App) to ensure no project context leakage.
+- **Synthesized Architecture Export**: Automatically generates and merges specifications into a professional, aligned PDF report.
+- **Cyber-Lime Premium UI**: A high-performance, responsive admin dashboard with real-time telemetry and a state-of-the-art aesthetic.
+- **Resilient Data Layer**: Persistent PostgreSQL storage with an autonomous in-memory fallback for high-availability demos.
 
-## 🚀 How to Run Locally
+## 🏗️ Technical Stack
+- **Frontend**: React 19, TypeScript, Tailwind CSS, Framer Motion, Lucide, jsPDF.
+- **Backend**: FastAPI (Python), SQLAlchemy, pypdf, Uvicorn.
+- **Infrastructure**: PostgreSQL, Docker Compose.
 
-### 1. Start the Databases (PostgreSQL + Redis)
-Make sure you have Docker installed.
+## 🚀 Setup & Execution
+
+### 1. Ingest Database Services
 ```bash
-cd GenAI-Spec-Engine
-docker-compose up -d
+docker compose up -d
 ```
 
-### 2. Start the Backend (FastAPI)
-It's recommended to use a Python virtual environment.
+### 2. Neural Backend Initialization
 ```bash
-cd GenAI-Spec-Engine/backend
+cd backend
 python -m venv venv
-.\venv\Scripts\activate   # On Windows
+.\venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --port 8000 --reload
 ```
-The API will be running on `http://127.0.0.1:8000/docs` (Swagger UI).
 
-### 3. Start the Frontend (React Vite)
+### 3. Command Center UI Startup
 ```bash
-cd GenAI-Spec-Engine/frontend
+cd frontend
 npm install
 npm run dev
 ```
-The UI dashboard will be running on the Localhost port provided by Vite (e.g. `http://localhost:5173/`).
 
 ---
-🌟 *Ready for your hackathon submission! Happy Coding!* 🌟
+🌟 **Built with 💚 for Xebia Hackathon 2026** 🌟
